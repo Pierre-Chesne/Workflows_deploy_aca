@@ -75,7 +75,7 @@ jobs:
 
           az containerapp create \
             --name api-${{ toJSON(github.event.action) }} \
-            --revision-suffix 1.0.0 \
+            --revision-suffix rev-001 \
             --revisions-mode multiple \
             --resource-group Rg_Client_${{ toJSON(github.event.action) }} \
             --environment aca-env-${{ toJSON(github.event.action) }} \
@@ -96,7 +96,7 @@ jobs:
 
           az containerapp create \
             --name front-${{ toJSON(github.event.action) }} \
-            --revision-suffix 1.0.0 \
+            --revision-suffix rev-001 \
             --revisions-mode multiple \
             --resource-group Rg_Client_${{ toJSON(github.event.action) }} \
             --environment aca-env-${{ toJSON(github.event.action) }} \
