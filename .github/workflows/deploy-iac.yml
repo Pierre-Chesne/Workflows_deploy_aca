@@ -6,6 +6,10 @@ jobs:
   Deploy_Environnment:
     runs-on: ubuntu-latest
     steps:
+      - name: Client Number
+        run: |
+          echo ${{ toJSON(github.event.action) }}
+
       - name: Checkout repo
         uses: actions/checkout@v2
 
@@ -49,16 +53,12 @@ jobs:
           cd ./IaC/Terraform/aca
           terraform apply acaplan.tfplan
 
-      - name: Client Number
-        run: |
-          echo ${{ toJSON(github.event.action) }}
-
       - name: Login Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy Applicaion aca
+      - name: Deploy Application Toudoux aca
         run: |
           az config set extension.use_dynamic_install=yes_without_prompt
 
@@ -75,6 +75,8 @@ jobs:
 
           az containerapp create \
             --name api-${{ toJSON(github.event.action) }} \
+            --revision-suffix 1.0.0 \
+            --revisions-mode multiple \
             --resource-group Rg_Client_${{ toJSON(github.event.action) }} \
             --environment aca-env-${{ toJSON(github.event.action) }} \
             --image ${{ vars.ACR_NAME }}.azurecr.io/todo-service:1.0.0 \
@@ -91,9 +93,11 @@ jobs:
             --name api-${{ toJSON(github.event.action) }} \
             --query properties.configuration.ingress.fqdn \
             --output tsv`
-          
+
           az containerapp create \
             --name front-${{ toJSON(github.event.action) }} \
+            --revision-suffix 1.0.0 \
+            --revisions-mode multiple \
             --resource-group Rg_Client_${{ toJSON(github.event.action) }} \
             --environment aca-env-${{ toJSON(github.event.action) }} \
             --image ${{ vars.ACR_NAME }}.azurecr.io/front-razor:1.0.0 \
@@ -104,9 +108,9 @@ jobs:
             --registry-server ${{ vars.ACR_NAME }}.azurecr.io \
             --registry-password $KEYACR \
             --query configuration.ingress.fqdn
-      
+
       - name: Send Message
-        run : |
+        run: |
           URLFRONT=`az containerapp show \
             --resource-group Rg_Client_${{ toJSON(github.event.action) }} \
             --name front-${{ toJSON(github.event.action) }} \
