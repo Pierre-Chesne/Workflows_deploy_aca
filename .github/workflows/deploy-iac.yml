@@ -120,7 +120,7 @@ jobs:
           if curl -s --request GET https://$URLFRONT | grep "Mes Toudoux" > /dev/null; then 
              az storage message put \
                --queue-name deploy-workflow-status \
-               --content ${{ toJSON(github.event.action) }}#https://$URLFRONT \
+               --content "`echo -n ${{ toJSON(github.event.action) }}#https://$URLFRONT | base64`" \
                --time-to-live 86400 \
                --account-name todosaastenantdb \
                --sas-token ${{ secrets.QUEUETOKEN }}
